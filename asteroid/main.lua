@@ -19,7 +19,6 @@ playerTab[1] = {
     rotate=0,
     color={43, 168, 226, 255}
     }
-    --[[
 playerTab[2] = {
     size=16,
     x=1100,
@@ -29,7 +28,7 @@ playerTab[2] = {
     maxVelocity=500,
     rotate=0,
     color={177, 226, 42, 255} 
-    } ]]   
+    }   
 vertices = {
     width/-2, width/-2,
     width/2, width/-2,
@@ -40,10 +39,10 @@ bulletVertices = {
     width/2, width/-2,
     0,width/2
 }
-
+playerWin = 0
 bulletTab = {}
 bulletTab[1] = {}
--- bulletTab.2 = {}
+bulletTab[2] = {}
 
 function tablelength(T)
   local count = 0
@@ -60,14 +59,10 @@ function love.load()
     bodyTab = {}
 
     for id, player in pairs(playerTab) do
-
         shape = love.physics.newPolygonShape( vertices )
-        
         body = love.physics.newBody( world, player.x, player.y, 'dynamic' )
         fixture = love.physics.newFixture( body, shape, 1 )
-
         bodyTab[id] = {body=body, fixture=fixture}
-
     end
   
     -- mesh = love.graphics.newMesh( vertices, 'strip' )
@@ -114,7 +109,9 @@ function love.update(dt)
             end
         end
         
-        
+        if joystickTab[id]:isGamepadDown( 'y' ) then
+            love.event.quit( "restart" )
+        end
 
         if joystickTab[id]:isGamepadDown( 'a' ) then
             win = true
@@ -161,6 +158,7 @@ function love.update(dt)
             if not id == i then
                 distance, x1, y1, x2, y2 = love.physics.getDistance( player.fixture, bullet.fixture )
                 if distance <= 0 then
+                    playerWin = id
                     win = true
                 end
             end
@@ -226,11 +224,11 @@ function love.draw()
         end
         for i, joystick in pairs(joystickTab) do
             for id, bullet in pairs(bulletTab[i]) do
-                love.graphics.setColor(255, 255, 255, 255)
+                love.graphics.setColor(playerTab[i]['color'])
                 love.graphics.polygon("line", bullet.body:getWorldPoints(bullet.shape:getPoints()))    
             end
         end
     else
-        love.graphics.print('YOU WIN!!', 900, 500, 0,2,2)
+        love.graphics.print('YOU WIN!! '..tostring(playerWin), 900, 500, 0,2,2)
     end
 end
