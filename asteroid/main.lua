@@ -81,10 +81,11 @@ function love.load()
     bodyTab = {}
 
     for id, player in pairs(playerTab) do
-        shape = love.physics.newPolygonShape( vertices, playerImg )
+        shape = love.physics.newPolygonShape( vertices )
         body = love.physics.newBody( world, player.x, player.y, 'dynamic' )
         fixture = love.physics.newFixture( body, shape, 1 )
         bodyTab[id] = {body=body, fixture=fixture}
+
     end
   
     -- mesh = love.graphics.newMesh( vertices, 'strip' )
@@ -130,7 +131,9 @@ function love.update(dt)
             end
         end
     else
+        bouclierTab = {}
         for id, player in pairs(bodyTab) do
+            
             angle = player.body:getAngle()
 
             playerTab[1]['shot'] = playerTab[1]['shot'] + 1
@@ -168,6 +171,25 @@ function love.update(dt)
 
             posX = player.body:getX()
             posY = player.body:getY()
+
+            bouclierTab[id] = {}
+
+            if joystickTab[id]:isGamepadDown('leftshoulder') then
+
+                bouclierShape = love.physics.newCircleShape( 32 )
+                bouclierBody = love.physics.newBody( world, player.x, player.y, 'dynamic' )
+                bouclierBody:setMass(0)
+                bouclierFixture = love.physics.newFixture( body, bouclierShape, 0 )
+                bouclierFixture:setDensity( 0 )
+                bouclierTab[id] = {body=bouclierBody, shape=bouclierShape, fixture=bouclierFixture}
+
+                bouclierTab[id]['body']:setPosition( posX, posY )
+                bouclierTab[id]['body']:setType( 'dynamic' )
+            else
+                if tablelength(bouclierTab[id]) > 1 then
+                    bouclierTab[id]['shape']:destroy()
+                end
+            end
 
             if posX > windowWidth then
                 player.body:setX(0)
@@ -298,6 +320,9 @@ function love.draw()
             -- love.graphics.setColor(playerTab[id]['color'])
             -- love.graphics.polygon("fill", player.body:getWorldPoints(shape:getPoints()))
             love.graphics.draw(playerTab[id]['image'], player.body:getX(), player.body:getY(),player.body:getAngle(),1,1,8,8)
+            if tablelength(bouclierTab[id]) > 1 then
+                love.graphics.circle( 'line', bouclierTab[id]['body']:getX(), bouclierTab[id]['body']:getY(), 32 )
+            end
         end
         for i, joystick in pairs(joystickTab) do
             for id, bullet in pairs(bulletTab[i]) do
