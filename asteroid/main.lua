@@ -209,8 +209,10 @@ function love.update(dt)
                 end
             end
             shipImpact, x1, y1, x2, y2 = love.physics.getDistance( bodyTab[1].fixture, bodyTab[2].fixture )
-            if shipImpact < 8 then
-                impactSound:play()
+            if shipImpact < 1 then
+                if linVX > 250 or linVY > 250 or linVX < -250 or linVY < -250 then
+                    impactSound:play()
+                end
             end
             for i, bullet in pairs(bulletTab[id]) do
                 if id == 1 then
